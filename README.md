@@ -1,4 +1,4 @@
-# PromptPaste
+# Plyph
 
 Use AI on selected text in Firefox. Correct writing, rewrite text, run a selection as a prompt, or create custom actions. Results can be reviewed and edited before replacing the original selection.
 
@@ -16,22 +16,22 @@ Use AI on selected text in Firefox. Correct writing, rewrite text, run a selecti
 ## Install
 
 <div >
-  <a href="https://addons.mozilla.org/firefox/addon/promptpaste/">
+  <a href="https://addons.mozilla.org/firefox/addon/plyph/">
     <img src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="Get the Add-on" height="60" />
   </a>
   <br>
-  <a href="https://addons.mozilla.org/firefox/addon/promptpaste/">
-    <img src="https://img.shields.io/amo/v/promptpaste?style=flat-square&color=orange" alt="Version" />
-    <img src="https://img.shields.io/amo/users/promptpaste?style=flat-square&color=blue" alt="Users" />
+  <a href="https://addons.mozilla.org/firefox/addon/plyph/">
+    <img src="https://img.shields.io/amo/v/plyph?style=flat-square&color=orange" alt="Version" />
+    <img src="https://img.shields.io/amo/users/plyph?style=flat-square&color=blue" alt="Users" />
   </a>
 </div>
 
 ## Usage
 
-1. Open **PromptPaste Settings** (toolbar button → Settings)
+1. Open **Plyph Settings** (toolbar button → Settings)
 2. Choose a provider and enter its credentials; Cloudflare Workers AI requires an API token and Account ID, while Ollama uses only its server URL
 3. Select text on any webpage
-4. Click the action dot, use the context menu (PromptPaste submenu), or press the keyboard shortcut
+4. Click the action dot, use the context menu (Plyph submenu), or press the keyboard shortcut
 5. Choose an action → review the result → click **Replace** or **Copy**
 
 Disable the floating dot in **Settings → General → Page controls**. History is disabled by default for privacy; enable **Save history** when you want to review, copy, delete, or clear local results from the popup. **Status feedback** defaults to the bottom center, or can follow the selected text or mouse pointer.
@@ -47,7 +47,7 @@ Cloudflare Qwen reasoning is disabled by default to keep short transformations f
 ## Privacy
 
 - Text is sent **only when you explicitly choose an action**
-- API keys and provider settings are stored in Firefox extension-local storage on your device; PromptPaste does not encrypt this storage
+- API keys and provider settings are stored in Firefox extension-local storage on your device; Plyph does not encrypt this storage
 - Ollama requests go to your configured server only and do not use an API key
 - Firefox requests to local Ollama use a Page Assist-style Origin rewrite, so Ollama's default CORS policy accepts them without changing Firefox or Ollama settings
 - No telemetry, no background requests

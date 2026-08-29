@@ -1,5 +1,5 @@
 (() => {
-  const previousController = globalThis.__promptPasteController;
+  const previousController = globalThis.__plyphController;
   if (previousController?.dispose) {
     try { previousController.dispose(); } catch { /* The previous extension context may already be gone. */ }
   }
@@ -16,8 +16,8 @@
   let feedbackPlacement = 'bottom';
   let extensionAlive = true;
 
-  globalThis.__promptPasteController = {dispose: disposeController};
-  delete globalThis.__promptPasteLoaded;
+  globalThis.__plyphController = {dispose: disposeController};
+  delete globalThis.__plyphLoaded;
 
   function isContextInvalidation(error) {
     const message = error?.message || String(error || '');
@@ -70,7 +70,7 @@
     pointerPosition = {x: event.clientX, y: event.clientY};
   }, {passive: true, signal: lifecycle.signal});
   document.addEventListener('mousedown', event => {
-    const trigger = document.getElementById('promptpaste-trigger');
+    const trigger = document.getElementById('plyph-trigger');
     if (trigger && !event.composedPath().includes(trigger)) removeTrigger();
   }, {capture: true, signal: lifecycle.signal});
   window.addEventListener('scroll', () => removeTrigger(), {capture: true, signal: lifecycle.signal});
@@ -124,7 +124,7 @@
   }
 
   function updateTrigger() {
-    if (!extensionAlive || !triggerEnabled || document.getElementById('promptpaste-host')) return removeTrigger();
+    if (!extensionAlive || !triggerEnabled || document.getElementById('plyph-host')) return removeTrigger();
     const current = captureSelection();
     if (!current?.text?.trim()) return removeTrigger();
     snapshot = current;
@@ -177,10 +177,10 @@
   }
 
   function showTrigger(rect) {
-    let host = document.getElementById('promptpaste-trigger');
+    let host = document.getElementById('plyph-trigger');
     if (!host) {
       host = document.createElement('div');
-      host.id = 'promptpaste-trigger';
+      host.id = 'plyph-trigger';
       const root = host.attachShadow({mode: 'open'});
       root.innerHTML = `
         <style>
@@ -193,7 +193,7 @@
           .glyph{display:flex;flex:0 0 16px;width:16px;height:16px;color:var(--muted)}.glyph svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.glyph .filled{fill:currentColor;stroke:none}.label{min-width:0;overflow:hidden;text-overflow:ellipsis}
           .separator{height:1px;margin:4px 8px;background:var(--border)}
         </style>
-        <button class="dot" title="PromptPaste actions" aria-label="Open PromptPaste actions" aria-expanded="false">✦</button>
+        <button class="dot" title="Plyph actions" aria-label="Open Plyph actions" aria-expanded="false">✦</button>
         <div class="menu" role="menu" hidden></div>`;
       document.documentElement.append(host);
       const dot = root.querySelector('.dot');
@@ -296,7 +296,7 @@
 
   function removeTrigger() {
     clearTimeout(triggerTimer);
-    document.getElementById('promptpaste-trigger')?.remove();
+    document.getElementById('plyph-trigger')?.remove();
   }
 
   function replaceSelection(text, label = 'Replaced') {
@@ -334,7 +334,7 @@
     clearTimeout(toastTimer);
     closeDialog();
     const host = document.createElement('div');
-    host.id = 'promptpaste-host';
+    host.id = 'plyph-host';
     const root = host.attachShadow({mode: 'open'});
     root.innerHTML = `
       <style>
@@ -348,7 +348,7 @@
         textarea:focus{outline:3px solid color-mix(in srgb,var(--pp-primary) 28%,transparent);border-color:var(--pp-primary)}.buttons{justify-content:flex-end;gap:11px;padding:19px 26px 23px}button{font:600 15px system-ui,sans-serif;border-radius:9px;border:1px solid var(--pp-border);padding:11px 18px;background:var(--pp-button);color:var(--pp-text);cursor:pointer}button.primary{background:var(--pp-primary);border-color:var(--pp-primary);color:#fff}@media(prefers-color-scheme:dark){button.primary{color:#14151a}}button:hover{filter:brightness(.97)}
       </style>
       <div class="backdrop" role="presentation"><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="pp-title">
-        <header><h2 id="pp-title">PromptPaste result</h2><button class="close" aria-label="Close">×</button></header>
+        <header><h2 id="pp-title">Plyph result</h2><button class="close" aria-label="Close">×</button></header>
         <div class="meta"><span></span><label class="wrap"><input type="checkbox" checked> Wrap lines</label></div>
         <textarea aria-label="Generated result"></textarea>
         <div class="buttons"><button class="cancel">Cancel</button><button class="copy">Copy</button><button class="primary replace">Replace</button></div>
@@ -392,12 +392,12 @@
     root.querySelector('.meta span').textContent = `${words} ${words === 1 ? 'word' : 'words'} · ${value.length} characters`;
   }
 
-  function closeDialog() { document.getElementById('promptpaste-host')?.remove(); }
+  function closeDialog() { document.getElementById('plyph-host')?.remove(); }
 
   function showToast(message, type = 'normal', duration = 1800, anchor = snapshot) {
     removeToast();
     const host = document.createElement('div');
-    host.id = 'promptpaste-toast';
+    host.id = 'plyph-toast';
     const root = host.attachShadow({mode: 'open'});
     root.innerHTML = `<style>:host{all:initial}.toast{position:fixed;z-index:2147483647;left:50%;bottom:32px;transform:translateX(-50%);max-width:min(560px,calc(100vw - 40px));padding:13px 18px;border-radius:11px;background:#172033;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.25);font:600 15px/1.45 system-ui,sans-serif;text-align:center}.toast.error{background:#b42318}.working{padding-left:38px}.working:before{content:'';position:absolute;margin-left:-22px;margin-top:2px;width:13px;height:13px;border:2px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}</style><div class="toast"></div>`;
     const toast = root.querySelector('.toast');
@@ -464,6 +464,6 @@
     clearTimeout(toastTimer);
     toastTimer = null;
     if (toastAnchorListeners) { toastAnchorListeners(); toastAnchorListeners = null; }
-    document.getElementById('promptpaste-toast')?.remove();
+    document.getElementById('plyph-toast')?.remove();
   }
 })();

@@ -69,16 +69,16 @@ function setupOllamaOriginRewrite() {
           }
         }
         if (changed) {
-          console.info(`PromptPaste Ollama CORS fix: ${details.method} ${details.url} Origin → ${targetOrigin}`);
+          console.info(`Plyph Ollama CORS fix: ${details.method} ${details.url} Origin → ${targetOrigin}`);
         }
         return {requestHeaders: headers};
       },
       requestFilter,
       ['blocking', 'requestHeaders']
     );
-    console.info('PromptPaste Ollama CORS fix installed (Firefox webRequest).');
+    console.info('Plyph Ollama CORS fix installed (Firefox webRequest).');
   } catch (error) {
-    console.warn('PromptPaste could not install the Ollama origin rewrite:', error);
+    console.warn('Plyph could not install the Ollama origin rewrite:', error);
   }
 }
 setupOllamaOriginRewrite();
@@ -87,7 +87,7 @@ let menuBuild = Promise.resolve();
 
 browser.runtime.onInstalled.addListener(() => {
   initializeExtension().catch(error => {
-    console.error('Could not initialize PromptPaste:', error);
+    console.error('Could not initialize Plyph:', error);
   });
 });
 
@@ -126,9 +126,9 @@ async function removeLegacyPageControls() {
     .map(tab => browser.scripting.executeScript({
       target: {tabId: tab.id},
       func: () => {
-        document.getElementById('promptpaste-trigger')?.remove();
-        document.getElementById('promptpaste-host')?.remove();
-        document.getElementById('promptpaste-toast')?.remove();
+        document.getElementById('plyph-trigger')?.remove();
+        document.getElementById('plyph-host')?.remove();
+        document.getElementById('plyph-toast')?.remove();
       },
     })));
 }
@@ -153,24 +153,24 @@ async function broadcastPageConfig() {
 }
 
 function scheduleMenuRebuild() {
-  menuBuild = menuBuild.then(rebuildMenus).catch(error => console.error('Could not rebuild PromptPaste menus:', error));
+  menuBuild = menuBuild.then(rebuildMenus).catch(error => console.error('Could not rebuild Plyph menus:', error));
   return menuBuild;
 }
 
 async function rebuildMenus() {
   await browser.contextMenus.removeAll();
-  browser.contextMenus.create({id: 'promptpaste-root', title: 'PromptPaste', contexts: ['selection', 'editable']});
-  browser.contextMenus.create({id: 'correct', parentId: 'promptpaste-root', title: 'Correct selected text', contexts: ['selection', 'editable']});
-  browser.contextMenus.create({id: 'rewrite', parentId: 'promptpaste-root', title: 'Rewrite selected text', contexts: ['selection', 'editable']});
-  browser.contextMenus.create({id: 'prompt', parentId: 'promptpaste-root', title: 'Run selected prompt', contexts: ['selection', 'editable']});
+  browser.contextMenus.create({id: 'plyph-root', title: 'Plyph', contexts: ['selection', 'editable']});
+  browser.contextMenus.create({id: 'correct', parentId: 'plyph-root', title: 'Correct selected text', contexts: ['selection', 'editable']});
+  browser.contextMenus.create({id: 'rewrite', parentId: 'plyph-root', title: 'Rewrite selected text', contexts: ['selection', 'editable']});
+  browser.contextMenus.create({id: 'prompt', parentId: 'plyph-root', title: 'Run selected prompt', contexts: ['selection', 'editable']});
   const settings = await getSettings();
   for (const action of enabledActions(settings)) {
-    browser.contextMenus.create({id: `custom:${action.id}`, parentId: 'promptpaste-root', title: action.name, contexts: ['selection', 'editable']});
+    browser.contextMenus.create({id: `custom:${action.id}`, parentId: 'plyph-root', title: action.name, contexts: ['selection', 'editable']});
   }
 }
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === 'promptpaste-root') return;
+  if (info.menuItemId === 'plyph-root') return;
   const action = info.menuItemId.startsWith('custom:')
     ? {mode: 'custom', actionId: info.menuItemId.slice(7)}
     : {mode: info.menuItemId};
@@ -178,7 +178,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 browser.commands.onCommand.addListener(command => {
-  runCommand(command).catch(error => console.error('Could not run PromptPaste command:', error));
+  runCommand(command).catch(error => console.error('Could not run Plyph command:', error));
 });
 
 async function runCommand(command) {
@@ -247,7 +247,7 @@ async function runOnTab(tabId, actionRequest, fallbackText = '') {
     });
   } catch (error) {
     // A full or unavailable history store must not discard an otherwise successful result.
-    console.error('Could not save PromptPaste history:', error);
+    console.error('Could not save Plyph history:', error);
   }
   await browser.tabs.sendMessage(tabId, {
     type: settings.previewResults ? 'SHOW_RESULT' : 'REPLACE_RESULT',
@@ -357,9 +357,9 @@ async function requestJson(url, headers, body, provider, model) {
     if (provider === 'ollama' && (response.status === 401 || response.status === 403)) {
       try {
         const headersList = [...response.headers.entries()].map(([key, value]) => `${key}: ${value}`).join(' | ');
-        console.error('PromptPaste Ollama request failed:', {url, status: response.status, headers: headersList, body: data});
+        console.error('Plyph Ollama request failed:', {url, status: response.status, headers: headersList, body: data});
       } catch (error) {
-        console.error('PromptPaste could not log the Ollama failure details:', error);
+        console.error('Plyph could not log the Ollama failure details:', error);
       }
     }
     if (response.status === 401 || response.status === 403) {
@@ -446,7 +446,7 @@ async function transform(text, action, settings) {
   data = await requestJson(urls[provider], {
     Authorization: `Bearer ${key}`,
     ...(provider === 'cloudflare' ? {'cf-aig-gateway-id': 'default'} : {}),
-    ...(provider === 'openrouter' ? {'X-Title': 'PromptPaste'} : {}),
+    ...(provider === 'openrouter' ? {'X-Title': 'Plyph'} : {}),
   }, body, provider, model);
   if (data.choices?.[0]?.finish_reason === 'length') throw new Error('Response reached the output limit. Increase the limit or select less text.');
   const message = data.choices?.[0]?.message;
