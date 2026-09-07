@@ -160,6 +160,7 @@ function scheduleMenuRebuild() {
 async function rebuildMenus() {
   await browser.contextMenus.removeAll();
   browser.contextMenus.create({id: 'plyph-root', title: 'Plyph', contexts: ['selection', 'editable']});
+  browser.contextMenus.create({id: 'ask', parentId: 'plyph-root', title: 'Ask about selected text…', contexts: ['selection', 'editable']});
   browser.contextMenus.create({id: 'correct', parentId: 'plyph-root', title: 'Correct selected text', contexts: ['selection', 'editable']});
   browser.contextMenus.create({id: 'rewrite', parentId: 'plyph-root', title: 'Rewrite selected text', contexts: ['selection', 'editable']});
   browser.contextMenus.create({id: 'prompt', parentId: 'plyph-root', title: 'Run selected prompt', contexts: ['selection', 'editable']});
@@ -226,9 +227,14 @@ async function runOnTab(tabId, actionRequest, fallbackText = '') {
   const capture = await browser.tabs.sendMessage(tabId, {type: 'CAPTURE_SELECTION'});
   const text = capture?.text || fallbackText;
   if (!text?.trim()) throw new Error('Select text first.');
-  await browser.tabs.sendMessage(tabId, {type: 'WORKING'});
   const settings = await getSettings();
   const action = resolveAction(settings, actionRequest);
+  if (action.mode === 'ask') {
+    const instruction = await browser.tabs.sendMessage(tabId, {type: 'ASK_INSTRUCTION'});
+    if (!instruction?.trim()) return;
+    action.userText = `Context:\n${text}\n\nInstruction:\n${instruction.trim()}`;
+  }
+  await browser.tabs.sendMessage(tabId, {type: 'WORKING'});
   const output = await transform(text, action, settings);
   const label = action.mode === 'rewrite' ? 'Rewritten' : action.inputMode === 'prompt' ? 'Generated' : 'Corrected';
   const actionName = action.name?.trim() || label;
@@ -308,6 +314,15 @@ function resolveAction(settings, request) {
     return {...item, mode: 'custom', inputMode: item.inputMode === 'prompt' ? 'prompt' : 'transform'};
   }
   if (request.mode === 'prompt') return {...settings.promptOptions, mode: 'prompt', inputMode: 'prompt', prompt: settings.prompts.prompt};
+  if (request.mode === 'ask') {
+    return {
+      mode: 'ask',
+      name: 'Ask',
+      inputMode: 'prompt',
+      prompt: "Use the provided context and the user's instruction to produce the requested response. Return only the useful requested output unless the user explicitly asks for an explanation.",
+      provider: '', model: '', inputLimit: 0, outputLimit: 0,
+    };
+  }
   const mode = request.mode === 'rewrite' ? 'rewrite' : 'correct';
   return {mode, inputMode: 'transform', prompt: settings.prompts[mode], provider: '', model: '', inputLimit: 0, outputLimit: 0};
 }
@@ -396,7 +411,7 @@ async function transform(text, action, settings) {
   const provider = action.provider || settings.provider;
   const model = action.model || settings.models[provider];
   const prompt = expandPrompt(action.prompt, text, settings.variables);
-  const userText = action.inputMode === 'prompt' ? text : payload(text);
+  const userText = action.userText || (action.inputMode === 'prompt' ? text : payload(text));
   const messages = [...(prompt.trim() ? [{role: 'system', content: prompt}] : []), {role: 'user', content: userText}];
   const requestedOutputLimit = positiveInt(action.outputLimit);
   let limit = maxTokens(text, requestedOutputLimit || (action.inputMode === 'prompt' ? 2000 : 0));
