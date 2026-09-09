@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Plyph",
-  "version": "0.1.3",
-  "description": "Send selected text to your chosen AI provider to correct, rewrite, or transform it in Firefox.",
+  "version": "0.1.4",
+  "description": "Ask questions about selected text or use your chosen AI provider to correct, rewrite, and transform it in Firefox.",
   "permissions": [
     "activeTab",
     "contextMenus",
@@ -43,6 +43,7 @@
   },
   "options_page": "options.html",
   "commands": {
+    "ask": {"description": "Ask about selected text"},
     "correct": {"suggested_key": {"default": "Alt+Shift+C"}, "description": "Correct selected text"},
     "rewrite": {"suggested_key": {"default": "Alt+Shift+R"}, "description": "Rewrite selected text"},
     "run-prompt": {"description": "Run selected text as a prompt"}
