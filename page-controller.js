@@ -195,9 +195,9 @@
           .item{display:flex;align-items:center;gap:8px;width:100%;min-height:29px;padding:5px 9px;border:0;border-radius:6px;background:transparent;color:var(--text);font:inherit;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.item:hover,.item:focus-visible{background:var(--hover);outline:0}.separator{height:1px;margin:4px 8px;background:var(--border)}
         </style>
         <div class="toolbar" role="toolbar" aria-label="Plyph actions">
-          <button class="logo" title="Plyph actions" aria-label="Open Plyph actions" aria-expanded="false">${triggerLogoIcon()}</button>
+          <button class="logo" title="Plyph actions" aria-label="Open Plyph actions" aria-expanded="false"><svg viewBox="160 126 704 704" aria-hidden="true"><path d="M512 156C496 257 458 365 401 455 349 537 286 607 220 660c82-24 148-23 199 15 46 34 74 80 93 125 19-45 47-91 93-125 51-38 117-39 199-15-66-53-129-123-181-205-57-90-95-198-111-299Zm0 249c-51 0-88 34-88 82 0 52 20 107 44 163 22 52 37 101 44 150-3-43-5-86-1-122 5-43 21-66 48-92 30-29 41-59 41-98 0-48-37-83-88-83Z" fill="currentColor" fill-rule="evenodd"/><circle cx="512" cy="493" r="37" fill="currentColor"/></svg></button>
           <div class="actions" hidden></div>
-          <button class="more" title="More actions" aria-label="More Plyph actions" aria-expanded="false" hidden>${triggerMoreIcon()}</button>
+          <button class="more" title="More actions" aria-label="More Plyph actions" aria-expanded="false" hidden><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1.25" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.25" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1.25" fill="currentColor" stroke="none"/></svg></button>
         </div>
         <div class="menu" role="menu" hidden></div>`;
       document.documentElement.append(host);
@@ -366,14 +366,6 @@
     } else if (mode === 'prompt') addPath('m7 4.5 8 5.5-8 5.5Z', 'filled');
     else addPath('m10 2 1.5 5.1L16.5 9l-5 1.9L10 16l-1.5-5.1L3.5 9l5-1.9Z');
     return svg;
-  }
-
-  function triggerLogoIcon() {
-    return `<svg viewBox="160 126 704 704" aria-hidden="true"><path d="M512 156C496 257 458 365 401 455 349 537 286 607 220 660c82-24 148-23 199 15 46 34 74 80 93 125 19-45 47-91 93-125 51-38 117-39 199-15-66-53-129-123-181-205-57-90-95-198-111-299Zm0 249c-51 0-88 34-88 82 0 52 20 107 44 163 22 52 37 101 44 150-3-43-5-86-1-122 5-43 21-66 48-92 30-29 41-59 41-98 0-48-37-83-88-83Z" fill="currentColor" fill-rule="evenodd"/><circle cx="512" cy="493" r="37" fill="currentColor"/></svg>`;
-  }
-
-  function triggerMoreIcon() {
-    return '<svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="4" cy="10" r="1.25" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.25" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1.25" fill="currentColor" stroke="none"/></svg>';
   }
 
   function removeTrigger() {
