@@ -1,16 +1,18 @@
 # Plyph
 
-Use AI on selected text in Firefox. Correct writing, rewrite text, run a selection as a prompt, or create custom actions. Results can be reviewed and edited before replacing the original selection.
+Use AI on selected text in Firefox. Ask questions about it, correct writing, rewrite text, run a selection as a prompt, or create custom actions. Results can be reviewed and edited before replacing the original selection.
 
 ## Features
 
 - **Multiple AI providers** — Ollama, Groq, Cloudflare Workers AI, B.AI, Gemini, OpenRouter, Cerebras, OpenAI, and Vercel AI Gateway
 - **Model discovery** — Refresh available models after configuring a provider, while still allowing manual model names
 - **Usage guidance** — Provider allowance and model-cost warnings are shown before choosing larger cloud models
+- **Ask about selections** — Enter a one-off instruction while keeping the selected text as context
 - **Built-in actions** — Professional email, summarize, translate, explain simply (customizable)
 - **Custom actions** — Create your own prompts with variables and model settings
-- **Flexible UI** — Floating action dot on selection, context menu, toolbar button, keyboard shortcuts
+- **Flexible UI** — Compact selection toolbar, context menu, browser toolbar button, and keyboard shortcuts
 - **Review before replace** — Preview and edit AI output before applying
+- **Plain text by default** — Markdown is used only when requested, with an optional preview fallback for removing unwanted Markdown
 - **User-controlled setup** — Bring your own provider credentials or use a local Ollama server
 
 ## Install
@@ -31,12 +33,12 @@ Use AI on selected text in Firefox. Correct writing, rewrite text, run a selecti
 1. Open **Plyph Settings** (toolbar button → Settings)
 2. Choose a provider and enter its credentials; Cloudflare Workers AI requires an API token and Account ID, while Ollama uses only its server URL
 3. Select text on any webpage
-4. Click the action dot, use the context menu (Plyph submenu), or press the keyboard shortcut
+4. Open the selection toolbar, use the context menu (Plyph submenu), or press the keyboard shortcut
 5. Choose an action → review the result → click **Replace** or **Copy**
 
-Disable the floating dot in **Settings → General → Page controls**. History is disabled by default for privacy; enable **Save history** when you want to review, copy, delete, or clear local results from the popup. **Status feedback** defaults to the bottom center, or can follow the selected text or mouse pointer.
+Disable the selection toolbar in **Settings → General → Page controls**. History is disabled by default for privacy; enable **Save history** when you want to review, copy, delete, or clear local results from the popup. **Status feedback** defaults to the bottom center, or can follow the selected text or mouse pointer.
 
-Cloudflare Qwen reasoning is disabled by default to keep short transformations fast and economical. Enable it from the Cloudflare provider settings when a task benefits from additional reasoning. **Preview before replacing** is enabled by default.
+Cloudflare Qwen reasoning is disabled by default to keep short transformations fast and economical. Enable it from the Cloudflare provider settings when a task benefits from additional reasoning. **Preview before replacing** is enabled by default. Results request plain text unless your instruction or action explicitly asks for Markdown. The preview's **Remove Markdown** fallback is off by default.
 
 ## Supported Fields
 

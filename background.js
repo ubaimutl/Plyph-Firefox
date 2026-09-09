@@ -160,6 +160,7 @@ function scheduleMenuRebuild() {
 async function rebuildMenus() {
   await browser.contextMenus.removeAll();
   browser.contextMenus.create({id: 'plyph-root', title: 'Plyph', contexts: ['selection', 'editable']});
+  browser.contextMenus.create({id: 'ask', parentId: 'plyph-root', title: 'Ask about selected text…', contexts: ['selection', 'editable']});
   browser.contextMenus.create({id: 'correct', parentId: 'plyph-root', title: 'Correct selected text', contexts: ['selection', 'editable']});
   browser.contextMenus.create({id: 'rewrite', parentId: 'plyph-root', title: 'Rewrite selected text', contexts: ['selection', 'editable']});
   browser.contextMenus.create({id: 'prompt', parentId: 'plyph-root', title: 'Run selected prompt', contexts: ['selection', 'editable']});
@@ -226,9 +227,14 @@ async function runOnTab(tabId, actionRequest, fallbackText = '') {
   const capture = await browser.tabs.sendMessage(tabId, {type: 'CAPTURE_SELECTION'});
   const text = capture?.text || fallbackText;
   if (!text?.trim()) throw new Error('Select text first.');
-  await browser.tabs.sendMessage(tabId, {type: 'WORKING'});
   const settings = await getSettings();
   const action = resolveAction(settings, actionRequest);
+  if (action.mode === 'ask') {
+    const instruction = await browser.tabs.sendMessage(tabId, {type: 'ASK_INSTRUCTION'});
+    if (!instruction?.trim()) return;
+    action.userText = `Context:\n${text}\n\nInstruction:\n${instruction.trim()}`;
+  }
+  await browser.tabs.sendMessage(tabId, {type: 'WORKING'});
   const output = await transform(text, action, settings);
   const label = action.mode === 'rewrite' ? 'Rewritten' : action.inputMode === 'prompt' ? 'Generated' : 'Corrected';
   const actionName = action.name?.trim() || label;
@@ -308,6 +314,15 @@ function resolveAction(settings, request) {
     return {...item, mode: 'custom', inputMode: item.inputMode === 'prompt' ? 'prompt' : 'transform'};
   }
   if (request.mode === 'prompt') return {...settings.promptOptions, mode: 'prompt', inputMode: 'prompt', prompt: settings.prompts.prompt};
+  if (request.mode === 'ask') {
+    return {
+      mode: 'ask',
+      name: 'Ask',
+      inputMode: 'prompt',
+      prompt: "Use the provided context and the user's instruction to produce the requested response. Return only the useful requested output unless the user explicitly asks for an explanation.",
+      provider: '', model: '', inputLimit: 0, outputLimit: 0,
+    };
+  }
   const mode = request.mode === 'rewrite' ? 'rewrite' : 'correct';
   return {mode, inputMode: 'transform', prompt: settings.prompts[mode], provider: '', model: '', inputLimit: 0, outputLimit: 0};
 }
@@ -316,6 +331,7 @@ function estimateTokens(text) { return Math.ceil(text.length / 4); }
 function maxTokens(text, value = 0) { return positiveInt(value) || Math.min(2000, Math.max(220, estimateTokens(text) + 180)); }
 function positiveInt(value) { return Number.isSafeInteger(Number(value)) && Number(value) > 0 ? Number(value) : 0; }
 function payload(text) { return `Transform only the text inside the tags.\nReturn only the transformed text.\n<text>\n${text}\n</text>`; }
+const OUTPUT_FORMAT_INSTRUCTION = "Respond in plain text without Markdown formatting by default. If the user's instruction or the selected action explicitly asks for Markdown, use Markdown exactly as requested.";
 function isCloudflareQwenReasoningModel(provider, model) {
   return provider === 'cloudflare' && /^@cf\/qwen\/qwen3(?:[.-]|$)/.test(model || '');
 }
@@ -395,8 +411,9 @@ async function transform(text, action, settings) {
   if (inputLimit && estimate > inputLimit) throw new Error(`Selected text is about ${estimate} tokens, above this action's ${inputLimit}-token input limit.`);
   const provider = action.provider || settings.provider;
   const model = action.model || settings.models[provider];
-  const prompt = expandPrompt(action.prompt, text, settings.variables);
-  const userText = action.inputMode === 'prompt' ? text : payload(text);
+  const actionPrompt = expandPrompt(action.prompt, text, settings.variables).trim();
+  const prompt = [actionPrompt, OUTPUT_FORMAT_INSTRUCTION].filter(Boolean).join('\n\n');
+  const userText = action.userText || (action.inputMode === 'prompt' ? text : payload(text));
   const messages = [...(prompt.trim() ? [{role: 'system', content: prompt}] : []), {role: 'user', content: userText}];
   const requestedOutputLimit = positiveInt(action.outputLimit);
   let limit = maxTokens(text, requestedOutputLimit || (action.inputMode === 'prompt' ? 2000 : 0));

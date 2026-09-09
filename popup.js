@@ -7,6 +7,7 @@ document.querySelector('#history').addEventListener('click', () => browser.tabs.
 
 const settings = await getSettings();
 const builtInActions = [
+  {name: 'Ask about selected text…', mode: 'ask'},
   {name: 'Correct selected text', mode: 'correct'},
   {name: 'Rewrite selected text', mode: 'rewrite'},
   {name: 'Run selected prompt', mode: 'prompt'},
@@ -42,7 +43,11 @@ function actionIcon(mode) {
     if (className) path.setAttribute('class', className);
     svg.append(path);
   };
-  if (mode === 'correct') addPath('m4 10 3.2 3.2L16 4.8');
+  if (mode === 'ask') {
+    addPath('M3.5 4.5h13v9h-7l-3.5 3v-3H3.5Z');
+    addPath('M8.2 7.7a2 2 0 1 1 2.4 1.95c-.6.2-.9.55-.9 1.05');
+    addPath('M9.7 12.15h.01');
+  } else if (mode === 'correct') addPath('m4 10 3.2 3.2L16 4.8');
   else if (mode === 'rewrite') {
     addPath('M15.5 7A6 6 0 1 0 16 12');
     addPath('M12 3h4v4');
