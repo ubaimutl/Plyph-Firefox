@@ -22,10 +22,7 @@ Use AI on selected text in Firefox. Ask questions about it, correct writing, rew
     <img src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="Get the Add-on" height="60" />
   </a>
   <br>
-  <a href="https://addons.mozilla.org/firefox/addon/plyph/">
-    <img src="https://img.shields.io/amo/v/plyph?style=flat-square&color=orange" alt="Version" />
-    <img src="https://img.shields.io/amo/users/plyph?style=flat-square&color=blue" alt="Users" />
-  </a>
+ 
 </div>
 
 ## Usage
