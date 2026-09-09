@@ -331,6 +331,7 @@ function estimateTokens(text) { return Math.ceil(text.length / 4); }
 function maxTokens(text, value = 0) { return positiveInt(value) || Math.min(2000, Math.max(220, estimateTokens(text) + 180)); }
 function positiveInt(value) { return Number.isSafeInteger(Number(value)) && Number(value) > 0 ? Number(value) : 0; }
 function payload(text) { return `Transform only the text inside the tags.\nReturn only the transformed text.\n<text>\n${text}\n</text>`; }
+const OUTPUT_FORMAT_INSTRUCTION = "Respond in plain text without Markdown formatting by default. If the user's instruction or the selected action explicitly asks for Markdown, use Markdown exactly as requested.";
 function isCloudflareQwenReasoningModel(provider, model) {
   return provider === 'cloudflare' && /^@cf\/qwen\/qwen3(?:[.-]|$)/.test(model || '');
 }
@@ -410,7 +411,8 @@ async function transform(text, action, settings) {
   if (inputLimit && estimate > inputLimit) throw new Error(`Selected text is about ${estimate} tokens, above this action's ${inputLimit}-token input limit.`);
   const provider = action.provider || settings.provider;
   const model = action.model || settings.models[provider];
-  const prompt = expandPrompt(action.prompt, text, settings.variables);
+  const actionPrompt = expandPrompt(action.prompt, text, settings.variables).trim();
+  const prompt = [actionPrompt, OUTPUT_FORMAT_INSTRUCTION].filter(Boolean).join('\n\n');
   const userText = action.userText || (action.inputMode === 'prompt' ? text : payload(text));
   const messages = [...(prompt.trim() ? [{role: 'system', content: prompt}] : []), {role: 'user', content: userText}];
   const requestedOutputLimit = positiveInt(action.outputLimit);

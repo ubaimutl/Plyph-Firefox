@@ -12,6 +12,7 @@ Use AI on selected text in Firefox. Ask questions about it, correct writing, rew
 - **Custom actions** — Create your own prompts with variables and model settings
 - **Flexible UI** — Compact selection toolbar, context menu, browser toolbar button, and keyboard shortcuts
 - **Review before replace** — Preview and edit AI output before applying
+- **Plain text by default** — Markdown is used only when requested, with an optional preview fallback for removing unwanted Markdown
 - **User-controlled setup** — Bring your own provider credentials or use a local Ollama server
 
 ## Install
@@ -37,7 +38,7 @@ Use AI on selected text in Firefox. Ask questions about it, correct writing, rew
 
 Disable the selection toolbar in **Settings → General → Page controls**. History is disabled by default for privacy; enable **Save history** when you want to review, copy, delete, or clear local results from the popup. **Status feedback** defaults to the bottom center, or can follow the selected text or mouse pointer.
 
-Cloudflare Qwen reasoning is disabled by default to keep short transformations fast and economical. Enable it from the Cloudflare provider settings when a task benefits from additional reasoning. **Preview before replacing** is enabled by default.
+Cloudflare Qwen reasoning is disabled by default to keep short transformations fast and economical. Enable it from the Cloudflare provider settings when a task benefits from additional reasoning. **Preview before replacing** is enabled by default. Results request plain text unless your instruction or action explicitly asks for Markdown. The preview's **Remove Markdown** fallback is off by default.
 
 ## Supported Fields
 
