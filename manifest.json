@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Plyph",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Ask questions about selected text or use your chosen AI provider to correct, rewrite, and transform it in Firefox.",
   "permissions": [
     "activeTab",
@@ -10,6 +10,7 @@
     "storage",
     "webRequest",
     "webRequestBlocking",
+    "https://auth.openai.com/*",
     "https://api.groq.com/*",
     "https://api.cloudflare.com/*",
     "https://api.b.ai/*",
@@ -25,39 +26,87 @@
     "http://[::1]/*",
     "https://[::1]/*"
   ],
-  "background": {"page": "background.html", "persistent": true},
-  "content_scripts": [{
-    "matches": ["<all_urls>"],
-    "js": ["page-controller.js"],
-    "run_at": "document_idle"
-  }],
-  "icons": {"16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "64": "icons/icon64.png", "96": "icons/icon96.png", "128": "icons/icon128.png"},
+  "background": {
+    "page": "background.html",
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "page-controller.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "64": "icons/icon64.png",
+    "96": "icons/icon96.png",
+    "128": "icons/icon128.png"
+  },
   "browser_action": {
     "default_title": "Plyph",
     "default_popup": "popup.html",
-    "default_icon": {"16": "toolbar/for-light-theme/icon16.png", "32": "toolbar/for-light-theme/icon32.png"},
+    "default_icon": {
+      "16": "toolbar/for-light-theme/icon16.png",
+      "32": "toolbar/for-light-theme/icon32.png"
+    },
     "theme_icons": [
-      {"light": "toolbar/for-dark-theme/icon16.png", "dark": "toolbar/for-light-theme/icon16.png", "size": 16},
-      {"light": "toolbar/for-dark-theme/icon32.png", "dark": "toolbar/for-light-theme/icon32.png", "size": 32}
+      {
+        "light": "toolbar/for-dark-theme/icon16.png",
+        "dark": "toolbar/for-light-theme/icon16.png",
+        "size": 16
+      },
+      {
+        "light": "toolbar/for-dark-theme/icon32.png",
+        "dark": "toolbar/for-light-theme/icon32.png",
+        "size": 32
+      }
     ]
   },
   "options_page": "options.html",
   "commands": {
-    "ask": {"description": "Ask about selected text"},
-    "correct": {"suggested_key": {"default": "Alt+Shift+C"}, "description": "Correct selected text"},
-    "rewrite": {"suggested_key": {"default": "Alt+Shift+R"}, "description": "Rewrite selected text"},
-    "run-prompt": {"description": "Run selected text as a prompt"}
+    "ask": {
+      "description": "Ask about selected text"
+    },
+    "correct": {
+      "suggested_key": {
+        "default": "Alt+Shift+C"
+      },
+      "description": "Correct selected text"
+    },
+    "rewrite": {
+      "suggested_key": {
+        "default": "Alt+Shift+R"
+      },
+      "description": "Rewrite selected text"
+    },
+    "run-prompt": {
+      "description": "Run selected text as a prompt"
+    }
   },
   "browser_specific_settings": {
     "gecko": {
       "id": "promptpaste@ubai.dev",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
-        "required": ["websiteContent", "personalCommunications", "authenticationInfo"]
+        "required": [
+          "websiteContent",
+          "personalCommunications",
+          "authenticationInfo"
+        ]
       }
     },
     "gecko_android": {
       "strict_min_version": "142.0"
     }
-  }
+  },
+  "web_accessible_resources": [
+    "chatgpt-callback.html"
+  ]
 }

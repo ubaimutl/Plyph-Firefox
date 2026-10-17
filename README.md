@@ -4,16 +4,17 @@ Use AI on selected text in Firefox. Ask questions about it, correct writing, rew
 
 ## Features
 
-- **Multiple AI providers** — Ollama, Groq, Cloudflare Workers AI, B.AI, Gemini, OpenRouter, Cerebras, OpenAI, and Vercel AI Gateway
+- **Multiple AI providers** — Ollama, your **ChatGPT Account**, Groq, DeepSeek, Gemini, OpenAI, OpenRouter, Cerebras, Cloudflare Workers AI, B.AI, Vercel AI Gateway, or any **Custom OpenAI-Compatible** endpoint
 - **Model discovery** — Refresh available models after configuring a provider, while still allowing manual model names
 - **Usage guidance** — Provider allowance and model-cost warnings are shown before choosing larger cloud models
 - **Ask about selections** — Enter a one-off instruction while keeping the selected text as context
 - **Built-in actions** — Professional email, summarize, translate, explain simply (customizable)
 - **Custom actions** — Create your own prompts with variables and model settings
-- **Flexible UI** — Compact selection toolbar, context menu, browser toolbar button, and keyboard shortcuts
+- **Flexible UI** — Configurable selection toolbar (up to four quick actions, the rest under More), context menu, browser toolbar button, and keyboard shortcuts
 - **Review before replace** — Preview and edit AI output before applying
 - **Plain text by default** — Markdown is used only when requested, with an optional preview fallback for removing unwanted Markdown
-- **User-controlled setup** — Bring your own provider credentials or use a local Ollama server
+- **User-controlled setup** — Bring your own provider credentials, sign in with your ChatGPT plan, or use a local Ollama server
+- **API key protection** — Optional password-based vault encryption for saved keys
 
 ## Install
 
@@ -28,7 +29,7 @@ Use AI on selected text in Firefox. Ask questions about it, correct writing, rew
 ## Usage
 
 1. Open **Plyph Settings** (toolbar button → Settings)
-2. Choose a provider and enter its credentials; Cloudflare Workers AI requires an API token and Account ID, while Ollama uses only its server URL
+2. Choose a provider and enter its credentials (or sign in with your ChatGPT plan — no API key needed); Cloudflare Workers AI requires an API token and Account ID, while Ollama uses only its server URL
 3. Select text on any webpage
 4. Open the selection toolbar, use the context menu (Plyph submenu), or press the keyboard shortcut
 5. Choose an action → review the result → click **Replace** or **Copy**
@@ -46,7 +47,7 @@ Cloudflare Qwen reasoning is disabled by default to keep short transformations f
 ## Privacy
 
 - Text is sent **only when you explicitly choose an action**
-- API keys and provider settings are stored in Firefox extension-local storage on your device; Plyph does not encrypt this storage
+- API keys and provider settings are stored in Firefox extension-local storage on your device (enable the optional vault in settings to encrypt API keys); ChatGPT sign-in stores your connection tokens locally too
 - Ollama requests go to your configured server only and do not use an API key
 - Firefox requests to local Ollama use a Page Assist-style Origin rewrite, so Ollama's default CORS policy accepts them without changing Firefox or Ollama settings
 - No telemetry, no background requests

@@ -7,7 +7,7 @@ document.querySelector('#history').addEventListener('click', () => browser.tabs.
 
 const settings = await getSettings();
 const builtInActions = [
-  {name: 'Ask about selected text…', mode: 'ask'},
+  {name: 'Ask…', mode: 'ask'},
   {name: 'Correct selected text', mode: 'correct'},
   {name: 'Rewrite selected text', mode: 'rewrite'},
   {name: 'Run selected prompt', mode: 'prompt'},
@@ -22,39 +22,23 @@ for (const action of [...builtInActions, ...customActions]) {
   }
   const button = document.createElement('button');
   button.className = 'action-row menu-row';
-  const glyph = document.createElement('span');
-  glyph.className = 'action-glyph';
-  glyph.setAttribute('aria-hidden', 'true');
-  glyph.append(actionIcon(action.mode));
-  const label = document.createElement('span');
-  label.className = 'action-label';
-  label.textContent = action.name;
-  button.append(glyph, label);
+  button.innerHTML = `<span class="action-glyph" aria-hidden="true">${actionIcon(action.mode)}</span><span class="action-label"></span>`;
+  button.querySelector('.action-label').textContent = action.name;
   button.addEventListener('click', () => run(action, button));
   actionsRoot.append(button);
 }
 
 function actionIcon(mode) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 20 20');
-  const addPath = (d, className = '') => {
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', d);
-    if (className) path.setAttribute('class', className);
-    svg.append(path);
-  };
-  if (mode === 'ask') {
-    addPath('M3.5 4.5h13v9h-7l-3.5 3v-3H3.5Z');
-    addPath('M8.2 7.7a2 2 0 1 1 2.4 1.95c-.6.2-.9.55-.9 1.05');
-    addPath('M9.7 12.15h.01');
-  } else if (mode === 'correct') addPath('m4 10 3.2 3.2L16 4.8');
-  else if (mode === 'rewrite') {
-    addPath('M15.5 7A6 6 0 1 0 16 12');
-    addPath('M12 3h4v4');
-  } else if (mode === 'prompt') addPath('m7 4 8 6-8 6Z', 'filled');
-  else addPath('m10 2 1.5 5.1L16.5 9l-5 1.9L10 16l-1.5-5.1L3.5 9l5-1.9Z');
-  return svg;
-}
+    const paths = {
+      ask: '<path d="M17 9a6.5 6.5 0 0 1-6.5 6.5H7L3 18V6a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3Z"/><path d="M6.5 7h7M6.5 10.5H11"/>',
+      correct: '<path d="m2.5 12 3.5-9 3.5 9M4 8.5h4M11 13l2.5 2.5 4-5"/>',
+      rewrite: '<path d="m12.5 3.5 4 4M3 17l4.5-1 10-10a1.5 1.5 0 0 0 0-2l-1.5-1.5a1.5 1.5 0 0 0-2 0l-10 10Z"/><path d="M11 17h6"/>',
+      prompt: '<path d="m6 3 10 7-10 7Z"/>',
+      more: '<circle cx="4" cy="10" r="1"/><circle cx="10" cy="10" r="1"/><circle cx="16" cy="10" r="1"/>',
+      custom: '<path d="M3 5h5m4 0h5M3 10h9m4 0h1M3 15h2m4 0h8M8 3v4m4 1v4M5 13v4"/>',
+    };
+    return `<svg viewBox="0 0 20 20" aria-hidden="true">${paths[mode] || paths.custom}</svg>`;
+  }
 
 async function run(action, button) {
   status.hidden = true;

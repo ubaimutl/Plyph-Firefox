@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Plyph ChatGPT sign-in</title>
+<link rel="stylesheet" href="ui.css">
+<style>
+  body.options { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+  .callback-card { max-width: 420px; margin: 24px; padding: 28px; text-align: center; }
+  .callback-card p { color: var(--muted); }
+  .callback-card .error { color: var(--danger); }
+</style>
+</head>
+<body class="options">
+<div class="settings-shell"><div class="card callback-card">
+<h2>Plyph ChatGPT sign-in</h2>
+<p id="status">Finishing sign-in…</p>
+</div></div>
+<script src="chatgpt-callback.js"></script>
+</body>
+</html>
