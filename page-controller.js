@@ -108,8 +108,8 @@
     if (message.type === 'CAPTURE_SELECTION') {
       const current = captureSelection();
       if (current?.text) snapshot = current;
-      const editorText = preferEditorText(snapshot);
-      if (editorText) snapshot = {kind: 'editor', text: editorText};
+      const editor = findEditorTarget(snapshot);
+      if (editor) snapshot = {kind: 'editor', text: editor.text, replace: editor.replace};
       sendResponse({text: snapshot?.text || ''});
       return;
     }
@@ -288,7 +288,9 @@
           try {
             const ed = aceGlobal.edit(el);
             const text = ed && typeof ed.getSelectedText === 'function' ? ed.getSelectedText() : '';
-            if (typeof text === 'string' && text.trim()) out.push(text);
+            if (typeof text === 'string' && text.trim()) {
+              out.push({text, replace: value => { ed.focus(); ed.session.replace(ed.getSelectionRange(), value); }});
+            }
           } catch { }
         }
       }
@@ -297,20 +299,22 @@
         try {
           const cm = el.CodeMirror;
           const text = cm && typeof cm.getSelection === 'function' ? cm.getSelection() : '';
-          if (typeof text === 'string' && text.trim()) out.push(text);
+          if (typeof text === 'string' && text.trim()) {
+            out.push({text, replace: value => { cm.focus(); cm.replaceSelection(value); }});
+          }
         } catch { }
       }
     } catch { }
     return out;
   }
 
-  function preferEditorText(snap) {
+  function findEditorTarget(snap) {
     try {
-      if (!snapshotInEditor(snap)) return '';
-      const texts = queryEditorApis();
-      if (!texts.length) return '';
-      return texts.join('\n');
-    } catch { return ''; }
+      if (!snapshotInEditor(snap)) return null;
+      const targets = queryEditorApis();
+      if (!targets.length) return null;
+      return {text: targets.map(target => target.text).join('\n'), replace: value => targets[0].replace(value)};
+    } catch { return null; }
   }
 
   function captureSelection() {
@@ -645,10 +649,10 @@
 
   function runPageAction(action, selectedText = snapshot?.text || '') {
     if (!extensionAlive || !hasExtensionContext()) return removeTrigger();
-    const editorText = preferEditorText(snapshot);
-    if (editorText) {
-      selectedText = editorText;
-      snapshot = {kind: 'editor', text: editorText};
+    const editor = findEditorTarget(snapshot);
+    if (editor) {
+      selectedText = editor.text;
+      snapshot = {kind: 'editor', text: editor.text, replace: editor.replace};
     }
     if (action.mode === 'ask' && !action.instruction) { showAsk(selectedText || ''); return; }
     removeTrigger(true);
@@ -816,6 +820,8 @@
         snapshot.range.setStartAfter(node);
         snapshot.range.collapse(true);
       }
+    } else if (snapshot.kind === 'editor' && typeof snapshot.replace === 'function') {
+      try { snapshot.replace(text); } catch { showToast('The original field is no longer available.', 'error', 3500); return; }
     } else {
       showToast('The original field is no longer available.', 'error', 3500);
       return;
@@ -823,7 +829,7 @@
     const completedSelection = snapshot;
     snapshot = null;
     closeDialog();
-    showToast(`${label}. Use the page’s undo command to revert.`, 'normal', 1800, completedSelection);
+    showToast(`${label}. Use the page’s undo command to revert.`, 'normal', 1800, completedSelection.kind === 'editor' ? null : completedSelection);
   }
 
   function showResult(output, original = null, showChangesDefault = false) {
