@@ -237,11 +237,11 @@ h2 {
     color: var(--muted);
 }
 .action-glyph svg {
-    width: 17px;
-    height: 17px;
+    width: 16px;
+    height: 16px;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.7;
+    stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
@@ -642,18 +642,20 @@ h2 {
         color: #f0c94e;
     }
 }
-.model-picker {
+.model-field {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 6px;
+}
+.model-row {
+    display: flex;
+    align-items: stretch;
     gap: 8px;
 }
-.model-picker input {
+.model-row select {
+    flex: 1 1 auto;
+    width: auto;
     min-width: 0;
-    flex: 1 1 220px;
-}
-.model-select {
-    min-width: 170px;
-    flex: 0 1 42%;
 }
 .model-refresh {
     flex: 0 0 auto;
@@ -662,6 +664,7 @@ h2 {
 .model-status {
     min-height: 1.45em;
     color: var(--muted);
+    font-size: 13px;
     font-weight: 400;
 }
 .model-status.error {
@@ -682,9 +685,6 @@ h2 {
     flex-direction: column;
     gap: 6px;
     font-weight: 600;
-}
-.provider-config label > select {
-    margin-top: 2px;
 }
 .provider-config .model-status {
     margin-top: 5px;
@@ -727,10 +727,23 @@ input,
 select,
 textarea {
     width: 100%;
-    min-height: 38px;
+    min-height: 40px;
     border: 1px solid var(--border-strong);
-    border-radius: 6px;
-    padding: 8px 10px;
+    border-radius: 8px;
+    padding: 9px 12px;
+    background: var(--surface);
+    color: var(--text);
+}
+select {
+    appearance: none;
+    padding-right: 36px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23737373' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+select option {
     background: var(--surface);
     color: var(--text);
 }
@@ -1178,6 +1191,9 @@ dialog form {
     .primary {
         color: #14151a;
     }
+    select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23a1a1a1' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    }
     input::placeholder,
     textarea::placeholder {
         color: #858891;
@@ -1245,15 +1261,5 @@ dialog form {
     }
     .history-entry-details {
         grid-column: auto;
-    }
-    .model-picker {
-        flex-wrap: wrap;
-    }
-    .model-select {
-        min-width: 0;
-        flex-basis: 100%;
-    }
-    .model-picker input {
-        flex-basis: calc(100% - 86px);
     }
 }

@@ -128,13 +128,13 @@ function renderProviderFields() {
   const provider = $('#provider').value;
   const root = $('#provider-fields');
   root.replaceChildren();
-  const fields = document.createElement('div'); fields.className = 'fields two provider-config';
-  fields.append(modelField(provider));
+  const fields = document.createElement('div'); fields.className = 'fields provider-config';
   if (provider === 'chatgpt') {
+    fields.append(modelField(provider));
     root.append(fields);
     renderChatGPTAccounts(root);
     const extras = document.createElement('div');
-    extras.className = 'fields two provider-config';
+    extras.className = 'fields provider-config';
     extras.append(thinkingEffortRow());
     root.append(extras);
     const usage = providerNotice('⚠', 'Using ChatGPT plan',
@@ -176,6 +176,7 @@ function renderProviderFields() {
       settings.vaultLocked,
     ));
   }
+  fields.append(modelField(provider));
   root.append(fields);
   if (provider === 'cloudflare') {
     root.append(
@@ -362,9 +363,13 @@ function renderChatGPTAccounts(root) {
 }
 
 function thinkingEffortRow() {
+  const wrap = document.createElement('div');
+  wrap.className = 'model-field';
   const label = document.createElement('label');
+  label.htmlFor = 'thinking-effort';
   label.textContent = 'Thinking effort';
   const select = document.createElement('select');
+  select.id = 'thinking-effort';
   for (const [value, text] of [
     ['auto', 'Auto — model default'],
     ['low', 'Low'],
@@ -377,8 +382,8 @@ function thinkingEffortRow() {
   const hint = document.createElement('small');
   hint.className = 'model-status';
   hint.textContent = 'Applies to all actions using this provider. Higher effort may take longer. Support varies by model.';
-  label.append(select, hint);
-  return label;
+  wrap.append(label, select, hint);
+  return wrap;
 }
 
 function showChatGPTWelcome() {
@@ -565,67 +570,62 @@ function providerNotice(symbol, titleText, descriptionText, warning = false) {
 }
 
 function modelField(provider) {
+  const wrap = document.createElement('div');
+  wrap.className = 'model-field';
   const label = document.createElement('label');
+  label.htmlFor = 'model-select';
   label.textContent = 'Model';
-  const controls = document.createElement('div');
-  controls.className = 'model-picker';
+  const row = document.createElement('div');
+  row.className = 'model-row';
   const select = document.createElement('select');
-  select.className = 'model-select';
-  select.setAttribute('aria-label', 'Discovered models');
+  select.id = 'model-select';
+  const refresh = document.createElement('button');
+  refresh.type = 'button';
+  refresh.className = 'secondary model-refresh';
+  refresh.textContent = 'Refresh models';
   const input = document.createElement('input');
+  input.id = 'model-input';
   input.value = settings.models[provider] || '';
-  input.placeholder = provider === 'ollama' ? 'Or type a model name manually' : 'Or type a model name manually';
+  input.placeholder = 'Or type a model name…';
+  input.setAttribute('aria-label', 'Model name');
   input.autocomplete = 'off';
-  if (provider === 'chatgpt') {
-
-    input.hidden = true;
-    chatgptModelControls = {select, input, status: null, refresh: null};
-  } else {
-    chatgptModelControls = null;
-  }
-  input.addEventListener('input', () => {
-    settings.models[provider] = input.value.trim();
-    select.value = modelCache.get(provider)?.some(model => model.id === input.value) ? input.value : '';
-    queueSave();
-  });
+  input.spellcheck = false;
+  const models = modelCache.get(provider) || [];
+  applyModelOptions(select, models, input.value);
+  const status = document.createElement('small');
+  status.className = 'model-status';
+  status.setAttribute('aria-live', 'polite');
+  status.textContent = modelCache.has(provider)
+    ? `${models.length} models loaded`
+    : provider === 'ollama'
+      ? 'Click Refresh models to load installed models.'
+      : provider === 'chatgpt'
+        ? 'Connect your account, then click Refresh models.'
+        : provider === 'cloudflare'
+          ? 'Add your API token and Account ID, then click Refresh models.'
+          : 'Add your API key, then click Refresh models.';
   select.addEventListener('change', () => {
     if (!select.value) return;
     input.value = select.value;
     settings.models[provider] = select.value;
     queueSave();
   });
-  const refresh = document.createElement('button');
-  refresh.type = 'button';
-  refresh.className = 'secondary model-refresh';
-  refresh.textContent = 'Refresh';
-  const models = modelCache.get(provider) || [];
-  applyModelOptions(select, models, input.value);
-  const status = document.createElement('small');
-  status.className = 'model-status';
-  status.textContent = modelCache.has(provider)
-    ? `${models.length} models loaded`
-    : provider === 'ollama'
-      ? 'Click Refresh to load installed models.'
-      : provider === 'chatgpt'
-        ? 'Connect your account, then click Refresh.'
-        : provider === 'cloudflare'
-          ? 'Add your API token and Account ID, then click Refresh.'
-          : 'Add your API key, then click Refresh.';
+  input.addEventListener('input', () => {
+    settings.models[provider] = input.value.trim();
+    select.value = (modelCache.get(provider) || []).some(model => model.id === input.value) ? input.value : '';
+    queueSave();
+  });
   refresh.addEventListener('click', () => refreshModelList(provider, input, select, status, refresh));
-  controls.append(select, input, refresh);
-  label.append(controls, status);
-  if (provider === 'chatgpt') {
-    chatgptModelControls.select = select;
-    chatgptModelControls.status = status;
-    chatgptModelControls.refresh = refresh;
-  }
-  return label;
+  row.append(select, refresh);
+  wrap.append(label, row, input, status);
+  chatgptModelControls = provider === 'chatgpt' ? {select, input, status, refresh} : null;
+  return wrap;
 }
 
 function applyModelOptions(select, models, currentValue = '') {
   const placeholder = document.createElement('option');
   placeholder.value = '';
-  placeholder.textContent = models.length ? 'Choose a discovered model…' : 'Refresh to load models…';
+  placeholder.textContent = models.length ? 'Choose a model…' : 'Refresh to load models…';
   select.replaceChildren(placeholder, ...models.map(model => {
     const option = document.createElement('option');
     option.value = model.id;
@@ -645,9 +645,9 @@ async function refreshModelList(provider, input, select, status, button) {
     modelCache.set(provider, models);
     applyModelOptions(select, models, input.value);
     status.textContent = models.length
-      ? `${models.length} models loaded. Choose one above or type a custom model name.`
-      : 'No models were returned. You can still type a custom model name.';
-    if (!input.value && models[0]) {
+      ? `${models.length} models loaded. Choose one above or type a model name below.`
+      : 'No models were returned. You can still type a model name.';
+    if (!input.value.trim() && models[0]) {
       input.value = models[0].id;
       select.value = models[0].id;
       settings.models[provider] = models[0].id;
